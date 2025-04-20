@@ -1,4 +1,4 @@
-/* 전역 스타일 */
+/* global style */
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +11,7 @@ body {
     background-color: #f5f5f5;
 }
 
-/* 네비게이션 스타일 */
+/* navigation style */
 nav {
     background-color: #2c3e50;
     color: white;
@@ -53,7 +53,7 @@ nav ul li a.active {
     background-color: #34495e;
 }
 
-/* 메인 컨텐츠 스타일 */
+/* main content style */
 main {
     max-width: 1200px;
     margin: 2rem auto;
@@ -96,7 +96,7 @@ button:hover {
     background-color: #2980b9;
 }
 
-/* 테이블 스타일 */
+/* table style */
 .results-container {
     background-color: white;
     padding: 1rem;
@@ -126,7 +126,36 @@ tr:hover {
     background-color: #f8f9fa;
 }
 
-/* 반응형 디자인 */
+/* image cell style */
+td.medicine-image {
+    width: 100px;
+    padding: 0.5rem;
+}
+
+td.medicine-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+td.medicine-image .no-image {
+    width: 80px;
+    height: 80px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #999;
+    font-size: 0.8rem;
+    text-align: center;
+    margin: 0 auto;
+}
+
+/* responsive design */
 @media (max-width: 768px) {
     .nav-container {
         flex-direction: column;
@@ -168,5 +197,127 @@ tr:hover {
     th, td {
         padding: 0.3rem;
         font-size: 0.8rem;
+    }
+}
+
+/* Pagination styles */
+.pagination {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-info {
+    display: flex;
+    gap: 2rem;
+    color: #666;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pagination-controls button {
+    padding: 0.5rem 1rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #2980b9;
+}
+
+.pagination-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    min-width: 100px;
+    text-align: center;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+    .pagination-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pagination-controls button {
+        width: 100%;
+    }
+}
+
+/* Add to existing pagination styles */
+
+.page-numbers {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.page-numbers button {
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border-radius: 50%;
+    font-weight: 500;
+}
+
+.page-numbers button.active {
+    background-color: #2c3e50;
+}
+
+/* Update existing responsive styles */
+@media (max-width: 768px) {
+    .pagination-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .page-numbers {
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .pagination-controls button {
+        width: 100%;
+        border-radius: 4px;
+    }
+
+    .page-numbers {
+        flex-wrap: wrap;
+    }
+
+    .page-numbers button {
+        flex: 1;
+        min-width: 2.5rem;
+        border-radius: 4px;
     }
 } 

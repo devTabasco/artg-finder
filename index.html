@@ -23,7 +23,7 @@
             <h2>Australian Medicine Search</h2>
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="Enter medicine name...">
-                <button onclick="searchMedicine()">Search</button>
+                <button onclick="searchMedicine(1)">Search</button>
             </div>
         </div>
 
@@ -32,16 +32,34 @@
                 <thead>
                     <tr>
                         <th>Product Name</th>
-                        <th>ARTG ID</th>
                         <th>Active Ingredients</th>
                         <th>Indications</th>
                         <th>Warnings</th>
+                        <th>Additional Information</th>
+                        <th>Poison Schedule</th>
+                        <th>Image</th>
                     </tr>
                 </thead>
                 <tbody id="medicineTableBody">
                     <!-- Search results will be dynamically added here -->
                 </tbody>
             </table>
+            
+            <div class="pagination">
+                <div class="pagination-info">
+                    <span id="totalCount">Total: 0 items</span>
+                    <span id="currentPage">Page: 1</span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="firstPage" onclick="goToPage(1)" disabled>First</button>
+                    <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
+                    <div id="pageNumbers" class="page-numbers">
+                        <!-- Page numbers will be dynamically added here -->
+                    </div>
+                    <button id="nextPage" onclick="changePage(1)" disabled>Next</button>
+                    <button id="lastPage" onclick="goToLastPage()" disabled>Last</button>
+                </div>
+            </div>
         </div>
     </main>
 

@@ -29,16 +29,34 @@
                 <thead>
                     <tr>
                         <th>Product Name</th>
-                        <th>ARTG ID</th>
                         <th>Active Ingredients</th>
                         <th>Indications</th>
                         <th>Warnings</th>
+                        <th>Additional Information</th>
+                        <th>Poison Schedule</th>
+                        <th>Image</th>
                     </tr>
                 </thead>
                 <tbody id="favoritesTableBody">
                     <!-- Study list items will be dynamically added here -->
                 </tbody>
             </table>
+            
+            <div class="pagination">
+                <div class="pagination-info">
+                    <span id="totalCount">Total: 0 items</span>
+                    <span id="currentPage">Page: 1</span>
+                </div>
+                <div class="pagination-controls">
+                    <button id="firstPage" onclick="goToPage(1)" disabled>First</button>
+                    <button id="prevPage" onclick="changePage(-1)" disabled>Previous</button>
+                    <div id="pageNumbers" class="page-numbers">
+                        <!-- Page numbers will be dynamically added here -->
+                    </div>
+                    <button id="nextPage" onclick="changePage(1)" disabled>Next</button>
+                    <button id="lastPage" onclick="goToLastPage()" disabled>Last</button>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -47,6 +65,82 @@
         const SUPABASE_URL = 'https://upkmjagmqnwddjgfjbsf.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVwa21qYWdtcW53ZGRqZ2ZqYnNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDUwNjI1MjAsImV4cCI6MjA2MDYzODUyMH0.PEUcSi2668cqE1Rk2RibZaP5fTcNvrmtIn6qAF3yiJ0';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Pagination state
+        const ITEMS_PER_PAGE = 10;
+        let currentPage = 1;
+        let totalItems = 0;
+        let totalPages = 1;
+
+        // Get visible page range
+        function getVisiblePageRange() {
+            let start = 1;
+            let end = Math.min(5, totalPages);
+
+            if (currentPage >= 3) {
+                start = currentPage - 2;
+                end = Math.min(currentPage + 2, totalPages);
+
+                if (end - start < 4) {
+                    start = Math.max(1, end - 4);
+                }
+            }
+
+            return { start, end };
+        }
+
+        // Update pagination UI
+        function updatePaginationUI() {
+            const prevButton = document.getElementById('prevPage');
+            const nextButton = document.getElementById('nextPage');
+            const firstButton = document.getElementById('firstPage');
+            const lastButton = document.getElementById('lastPage');
+            const pageNumbers = document.getElementById('pageNumbers');
+            const totalCountSpan = document.getElementById('totalCount');
+            const currentPageSpan = document.getElementById('currentPage');
+
+            // Update navigation buttons
+            prevButton.disabled = currentPage === 1;
+            nextButton.disabled = currentPage === totalPages;
+            firstButton.disabled = currentPage === 1;
+            lastButton.disabled = currentPage === totalPages;
+
+            // Update info text
+            totalCountSpan.textContent = `Total: ${totalItems} items`;
+            currentPageSpan.textContent = `Page: ${currentPage}`;
+
+            // Update page numbers
+            pageNumbers.innerHTML = '';
+            const { start, end } = getVisiblePageRange();
+
+            for (let i = start; i <= end; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => goToPage(i);
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                pageNumbers.appendChild(button);
+            }
+        }
+
+        // Go to specific page
+        async function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                currentPage = page;
+                await loadFavorites(currentPage);
+            }
+        }
+
+        // Go to last page
+        async function goToLastPage() {
+            await goToPage(totalPages);
+        }
+
+        // Change page
+        async function changePage(delta) {
+            await goToPage(currentPage + delta);
+        }
 
         // HTML escape function for safe text display
         function escapeHtml(text) {
@@ -57,42 +151,90 @@
         }
 
         // Load specified medicines
-        async function loadFavorites() {
+        async function loadFavorites(page = 1) {
             const tableBody = document.getElementById('favoritesTableBody');
             tableBody.innerHTML = '';
 
             try {
+                // First, get total count
+                const { count, error: countError } = await supabase
+                    .from('artg_finder')
+                    .select('id', { count: 'exact' })
+                    .eq('required_item', true);
+
+                if (countError) throw countError;
+
+                totalItems = count;
+                totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+                // Then, get paginated data
+                const start = (page - 1) * ITEMS_PER_PAGE;
                 const { data: medicines, error } = await supabase
                     .from('artg_finder')
-                    .select('*')
-                    .eq('artg_id', '410182');
+                    .select('product_name, active_ingredients, indications, warnings, additional_product_information, poison_schedule, image_url')
+                    .eq('required_item', true)
+                    .range(start, start + ITEMS_PER_PAGE - 1);
 
                 if (error) throw error;
 
                 if (!medicines || medicines.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No data found</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No data found</td></tr>';
+                    totalItems = 0;
+                    totalPages = 1;
+                    updatePaginationUI();
                     return;
                 }
 
                 medicines.forEach(medicine => {
                     const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${escapeHtml(medicine.product_name)}</td>
-                        <td>${escapeHtml(medicine.artg_id)}</td>
-                        <td>${escapeHtml(medicine.active_ingredients)}</td>
-                        <td>${escapeHtml(medicine.indications)}</td>
-                        <td>${escapeHtml(medicine.warnings)}</td>
-                    `;
+                    
+                    // Add data cells first
+                    const cells = [
+                        escapeHtml(medicine.product_name),
+                        escapeHtml(medicine.active_ingredients),
+                        escapeHtml(medicine.indications),
+                        escapeHtml(medicine.warnings),
+                        escapeHtml(medicine.additional_product_information),
+                        escapeHtml(medicine.poison_schedule)
+                    ];
+
+                    cells.forEach(text => {
+                        const cell = document.createElement('td');
+                        cell.textContent = text;
+                        row.appendChild(cell);
+                    });
+
+                    // Add image cell at the end
+                    const imageCell = document.createElement('td');
+                    imageCell.className = 'medicine-image';
+                    if (medicine.image_url) {
+                        const img = document.createElement('img');
+                        img.src = medicine.image_url;
+                        img.alt = medicine.product_name;
+                        imageCell.appendChild(img);
+                    } else {
+                        const noImage = document.createElement('div');
+                        noImage.className = 'no-image';
+                        noImage.textContent = 'No Image';
+                        imageCell.appendChild(noImage);
+                    }
+                    row.appendChild(imageCell);
+                    
                     tableBody.appendChild(row);
                 });
+
+                updatePaginationUI();
             } catch (error) {
                 console.error('Error loading study list:', error);
-                tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Error loading data</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error loading data</td></tr>';
+                totalItems = 0;
+                totalPages = 1;
+                updatePaginationUI();
             }
         }
 
         // Load study list when page loads
-        window.onload = loadFavorites;
+        window.onload = () => loadFavorites(1);
     </script>
 </body>
 </html> 
