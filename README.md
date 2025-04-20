@@ -1,7 +1,13 @@
 # ARTG Finder - Australian Medicine Search
 
 ## Project Overview
-ARTG Finder is an Australian medicine search and learning tool. This project is designed to help healthcare professionals and students easily find and learn about medicines used in Australia.
+ARTG Finder is an Australian medicine search and learning tool. This project is designed to help healthcare professionals and students easily find and learn about medicines used in Australia. The application is built upon data from the [Australian Register of Therapeutic Goods (ARTG)](https://www.tga.gov.au/products/australian-register-therapeutic-goods-artg), which is the official public database maintained by the Therapeutic Goods Administration (TGA).
+
+### Data Source
+- Based on the ARTG public database
+- Regular updates to maintain accuracy
+- Comprehensive medicine information from Australia's official therapeutic goods registry
+- Compliance with TGA data usage guidelines
 
 ### Key Features
 - **Medicine Search**: Real-time medicine search based on product names
